@@ -26,8 +26,11 @@ abstract class TestCase extends Orchestra
         Schema::create('test_models', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name')->nullable();
+            $table->text('nameTranslations')->nullable();
             $table->text('other_field')->nullable();
+            $table->text('other_fieldTranslations')->nullable();
             $table->text('field_with_mutator')->nullable();
+            $table->text('field_with_mutatorTranslations')->nullable();
         });
     }
 }

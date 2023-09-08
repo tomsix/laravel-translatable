@@ -6,6 +6,8 @@ use Closure;
 
 class Translatable
 {
+    public string $mainLocale;
+
     /*
      * If a translation has not been set for a given locale, use this locale instead.
      */
@@ -19,6 +21,10 @@ class Translatable
 
     public ?Closure $missingKeyCallback = null;
 
+    public function __construct(string $mainLocale)
+    {
+        $this->mainLocale = $mainLocale;
+    }
     public function fallback(
         ?string $fallbackLocale = null,
         ?bool $fallbackAny = false,

@@ -11,12 +11,13 @@ class TranslatableServiceProvider extends PackageServiceProvider
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('laravel-translatable');
+            ->name('laravel-translatable')
+            ->hasConfigFile(['locales']);
     }
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(Translatable::class, fn () => new Translatable());
+        $this->app->singleton(Translatable::class, fn () => new Translatable(config('locales.main')));
         $this->app->bind('translatable', Translatable::class);
 
         Factory::macro('translations', function (string|array $locales, mixed $value) {

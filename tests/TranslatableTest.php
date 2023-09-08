@@ -279,12 +279,12 @@ it('can forget all translations of field', function () {
 
     $this->testModel->forgetTranslations('name');
 
-    expect($this->testModel->getAttributes()['name'])->toBe('[]');
+    expect($this->testModel->getAttributes()['name'])->toBe('');
     expect($this->testModel->getTranslations('name'))->toBe([]);
 
     $this->testModel->save();
 
-    expect($this->testModel->fresh()->getAttributes()['name'])->toBe('[]');
+    expect($this->testModel->fresh()->getAttributes()['name'])->toBe('');
     expect($this->testModel->fresh()->getTranslations('name'))->toBe([]);
 });
 
@@ -298,14 +298,14 @@ it('can forget all translations of field and make field null', function () {
         'fr' => 'testValue_fr',
     ], $this->testModel->getTranslations('name'));
 
-    $this->testModel->forgetTranslations('name', true);
+    $this->testModel->forgetTranslations('name');
 
-    expect($this->testModel->getAttributes()['name'])->toBeNull();
+    expect($this->testModel->getAttributes()['name'])->toBe('');
     expect($this->testModel->getTranslations('name'))->toBe([]);
 
     $this->testModel->save();
 
-    expect($this->testModel->fresh()->getAttributes()['name'])->toBeNull();
+    expect($this->testModel->fresh()->getAttributes()['name'])->toBe('');
     expect($this->testModel->fresh()->getTranslations('name'))->toBe([]);
 });
 
@@ -545,7 +545,7 @@ it('handle null value from database', function () {
         }
     });
 
-    $testModel->setAttributesExternally(['name' => json_encode(null), 'other_field' => null]);
+    $testModel->setAttributesExternally(['name' => null, 'other_field' => null]);
 
     expect($testModel->name)->toEqual('');
     expect($testModel->other_field)->toEqual('');
@@ -729,14 +729,17 @@ it('will return all locales when getting all translations', function () {
 });
 
 it('queries the database whether a locale exists', function () {
+
+    \Illuminate\Support\Facades\DB::enableQueryLog();
+
     $this->testModel->setTranslation('name', 'en', 'testValue_en');
     $this->testModel->setTranslation('name', 'fr', 'testValue_fr');
     $this->testModel->setTranslation('name', 'tr', 'testValue_tr');
     $this->testModel->save();
 
-    expect($this->testModel->whereLocale('name', 'en')->get())->toHaveCount(1);
-
-    expect($this->testModel->whereLocale('name', 'de')->get())->toHaveCount(0);
+    expect($this->testModel::whereLocale('name', 'en')->get())->toHaveCount(1);
+    expect($this->testModel::whereLocale('name', 'fr')->get())->toHaveCount(1);
+    expect($this->testModel::whereLocale('name', 'de')->get())->toHaveCount(0);
 });
 
 it('queries the database for multiple locales', function () {
@@ -745,9 +748,10 @@ it('queries the database for multiple locales', function () {
     $this->testModel->setTranslation('name', 'tr', 'testValue_tr');
     $this->testModel->save();
 
-    expect($this->testModel->whereLocales('name', ['en', 'tr'])->get())->toHaveCount(1);
+    $this->testModel->whereLocales('name', ['en', 'tr'])->dump();
 
-    expect($this->testModel->whereLocales('name', ['de', 'be'])->get())->toHaveCount(0);
+    expect($this->testModel::whereLocales('name', ['en', 'tr'])->get())->toHaveCount(1);
+    expect($this->testModel::whereLocales('name', ['de', 'be'])->get())->toHaveCount(0);
 });
 
 it('can disable attribute locale fallback on a per model basis', function () {
